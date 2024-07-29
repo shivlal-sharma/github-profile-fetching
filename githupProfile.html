@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Github Profile</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: url('image/bg10.jpg') no-repeat center center/cover;
+        }
+
+        .container{
+            border-radius: 5px;
+            padding: 10px;
+            width:70vw;
+            background: url('image/bg4.jpg') no-repeat center center/cover;
+        }
+
+        input{
+            width: 100%;
+            padding: 3px 7px;
+            font-size: 1.1rem;
+            border: 1px solid #fff;
+            outline: none;
+            border-radius: 3px;
+            margin-bottom: 10px;
+            background: transparent;
+            color: #fff;
+        }
+
+        ::placeholder{
+            color: #fff;
+        }
+
+        .card{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #fff;
+            gap: 20px;
+            padding-left: 10px;
+            user-select: none;
+            color: #fff;
+        }
+
+        img{
+            height: 70px;
+            width: 70px;
+            outline: none;
+            border-radius: 50%;
+            border: 1px solid #fff;
+        }
+
+        p{
+            margin-bottom: 7px;
+        }
+
+        .user-info{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .info{
+            display: flex;
+        }
+
+        li{
+            font-size: 1.1rem;
+            list-style: none;
+            margin-right: 10px;
+        }
+
+        strong{
+            margin-left: 10px;
+        }
+
+        #repos{
+            margin: 5px 0px;
+        }
+
+        a{
+            text-decoration: none;
+            color: aqua;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form action="" onsubmit="return formData()">
+            <input type="text" id="name" placeholder="Search a Github Username Here...">
+        </form>
+        <div class="main">
+            <div class="card">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const search = document.querySelector('#name');
+        const main = document.querySelector('.card');
+        const API = 'https://api.github.com/users/';
+
+        const getUsername = async(username)=>{
+            const response = await fetch(API+username);
+            const data = await response.json();
+            const card = `<div>
+                    <img src="${data.avatar_url}" alt="${data.name}">
+                </div>
+                <div class="user-info">
+                    <h1>${data.name}</h1>
+                    <p>${data.bio}</p>
+
+                    <ul class="info">
+                        <li>${data.followers}<strong>Followers</strong></li>
+                        <li>${data.following}<strong>Following</strong></li>
+                        <li>${data.public_repos}<strong>Repos</strong></li>
+                    </ul>
+                    <div id="repos">
+                    </div>
+                </div>`;
+
+            main.innerHTML = card;
+            getRepos(username);
+        }
+
+
+        const getRepos = async(username)=>{
+            const repos = document.getElementById('repos');
+            const response = await fetch(API+username+'/repos');
+            const data = await response.json();
+            data.forEach(detail => {
+                const userLinks = document.createElement('a');
+                userLinks.href = detail.html_url;
+                userLinks.target = '_blank';
+                userLinks.classList.add('repo')
+                userLinks.innerText = detail.name;
+                repos.appendChild(userLinks);
+            });
+        }
+
+        const formData = ()=>{
+            let searchBox = document.querySelector('#name');
+            if(searchBox.value != ''){
+                getUsername(searchBox.value);
+                searchBox.value ='';
+            }
+           return false;
+        }
+
+        search.addEventListener('focusout',()=>{
+            formData();
+        });
+
+        // getUsername('taylorotwell');
+    </script>
+</body>
+</html>
